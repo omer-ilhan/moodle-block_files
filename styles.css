@@ -1,0 +1,22 @@
+.block-files-th {
+    display: table-cell !important;
+    font-size: inherit !important;
+}
+
+.block-files-item-hidden {
+    display: none;
+}
+
+.block-files-table {
+
+}
+
+#block-region-side-pre .block-files-table {
+    width: 100% !important;
+    margin-left: 0;
+}
+
+#block-region-side-post .block-files-table {
+    width: 100% !important;
+    margin-left: 0;
+}

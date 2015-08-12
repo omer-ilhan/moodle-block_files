@@ -1,0 +1,19 @@
+<?php
+$string['pluginname'] = 'Recent Files Block';
+$string['files'] = 'Files';
+$string['no_files'] = 'No files to display';
+$string['files:addinstance'] = 'Add a new recent files block';
+$string['files:myaddinstance'] = 'Add a new recent files block to the My Moodle page';
+$string['files_config_header'] = 'Recent Files Block';
+$string['files_config_number_displayed_files'] = 'The amount of files to display';
+$string['all_files'] = 'All recent files';
+$string['last_modified_on'] = 'Last modified: ';
+$string['more_item'] = 'There is %d more file ';
+$string['more_items'] = 'There are %d more files ';
+$string['show_all_par'] = 'Show all';
+$string['recent_files'] = 'Recent files';
+$string['pinned_files'] = 'Pinned files';
+$string['show_more'] = 'Show %d more';
+$string['show_less'] = 'Show less';
+$string['pin_item'] = 'Pin item';
+$string['unpin_item'] = 'Unpin item';

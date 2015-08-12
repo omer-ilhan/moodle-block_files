@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+  <XMLDB PATH="blocks/files/db" VERSION="20150701" COMMENT="XMLDB file for Moodle blocks/files">
+    <TABLES>
+      <TABLE NAME="block_files" COMMENT="Table used to save pinned items">
+        <FIELDS>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
+          <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User who pinned this"/>
+          <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The id of the pinned course module"/>
+        </FIELDS>
+        <KEYS>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+        </KEYS>
+        <INDEXES>
+          <INDEX NAME="userid-cmid" UNIQUE="true" FIELDS="userid, cmid" />
+        </INDEXES>
+      </TABLE>
+    </TABLES>
+  </XMLDB>
