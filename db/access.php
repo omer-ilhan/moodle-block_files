@@ -20,6 +20,10 @@
  * @license   GNU General Public License <http://www.gnu.org/licenses/>
  */
 
+/**
+ * Defines the capabilities of the block_files block.
+ * @var array
+ */
 $capabilities = array(
 
     'block/files:myaddinstance' => array(

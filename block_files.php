@@ -22,6 +22,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class block_files
+ * Main class of the recent files block.
+ * Displays a block containing a number of the most recently updated or modified
+ * files and folders from all enrolled courses.
+ */
 class block_files extends block_base {
 
     /**
@@ -33,15 +39,12 @@ class block_files extends block_base {
      * This little javascript snippet is used to override the fallback link to the viewall page and display
      * the surplus (if count(items) > elements_to_display) items on the same page instead.
      */
-    const MORE_BTN_JS = 'this.style.display="none";var elements=document.querySelectorAll(".block-files-item-hidden");var length=elements.length;'
-        .'for(var i=0;i<length;i++){var display=elements[i].style.display;elements[i].style.display="table-row"}return false;';
+    const MORE_BTN_JS = 'this.style.display="none";var elements=document.querySelectorAll(".block-files-item-hidden");var length=elements.length;for(var i=0;i<length;i++){var display=elements[i].style.display;elements[i].style.display="table-row"}return false;';
 
     /**
      * This little javascript snippet is used to hide the the surplus items again.
      */
-    const LESS_BTN_JS = 'this.style.display="none";var elements=document.querySelectorAll(".block-files-item-hidden");var length=elements.length;'
-        .'for(var i=0;i<length;i++){elements[i].style.display="none"}var morebtn=document.getElementById("block-files-show-more-button");'
-        .'if(morebtn.style.display=="none"){morebtn.style.display=""}return false;';
+    const LESS_BTN_JS = 'this.style.display="none";var elements=document.querySelectorAll(".block-files-item-hidden");var length=elements.length;for(var i=0;i<length;i++){elements[i].style.display="none"}var morebtn=document.getElementById("block-files-show-more-button");if(morebtn.style.display=="none"){morebtn.style.display=""}return false;';
 
     /**
      * @var bool value determining whether to show all files or not, used on the viewall page.
@@ -53,7 +56,9 @@ class block_files extends block_base {
         $this->viewall = false;
     }
 
-
+    /**
+     * Set the viewall property to true.
+     */
     public function block_files_set_viewall_mode() {
         $this->viewall = true;
     }
@@ -64,7 +69,8 @@ class block_files extends block_base {
             return $this->content;
         }
 
-        require_once($CFG->dirroot . '/course/lib.php'); // to use course_get_url()
+        // Required to use course_get_url() reliably.
+        require_once($CFG->dirroot . '/course/lib.php');
 
         $this->content = new stdClass;
         $userid = $USER->id;
@@ -81,14 +87,13 @@ class block_files extends block_base {
 
         // Get all courses the user is enrolled in, filter out old ones.
         $enrolledcourses = array_filter(
-            enrol_get_my_courses(array('id', 'fullname', 'shortname', 'startdate'), 'startdate DESC, sortorder ASC'),
-            array(&$this, 'is_current'));
+            enrol_get_my_courses(array('id', 'fullname', 'shortname', 'startdate'), 'startdate DESC, sortorder ASC'),   array(&$this, 'is_current'));
 
         // Get information about all relevant file items in all courses, e.g. files and folders.
         $pinneditems = $this->get_pinned_file_items($userid);
         $fileitems = $this->get_recent_file_items($enrolledcourses, array(&$this, 'compare_time_modified'));
 
-        $elementstodisplay = $this::DEFAULT_ELEMENTS_TO_DISPLAY;
+        $elementstodisplay = self::DEFAULT_ELEMENTS_TO_DISPLAY;
 
         if (!$this->viewall) {
             if (isset($this->config->elements_to_display)) {
@@ -112,8 +117,8 @@ class block_files extends block_base {
     /**
      * Pin an item for the user, i.e. save it to the database.
      *
-     * @param $userid user pinning an item
-     * @param $cmid id of the item to pin
+     * @param $userid int id of the user user pinning an item
+     * @param $cmid int id of the item to pin
      */
     private function pin_item($userid, $cmid) {
         if ($cmid === -1) {
@@ -129,15 +134,15 @@ class block_files extends block_base {
         } catch (Exception $e) {
             // TODO log it maybe, idk
             // happens when the user wants to add an already existing item to the table
-            // since that violates the unique constraint on (user, fileitem)
+            // since that violates the unique constraint on (user, fileitem).
         }
     }
 
     /**
      * Unpin an item for a user, i.e. delete it from the database.
      *
-     * @param $userid user unpinning an item
-     * @param $cmid id of the item to unpin
+     * @param $userid int id of the user unpinning an item
+     * @param $cmid int id of the item to unpin
      */
     private function unpin_item($userid, $cmid) {
         if ($cmid === -1) {
@@ -150,7 +155,7 @@ class block_files extends block_base {
     /**
      * Convert given timestamp into a readable format.
      *
-     * @param $time timestamp
+     * @param $time int timestamp
      * @return string time converted into a readable format
      */
     private function format_time($time) {
@@ -223,7 +228,7 @@ class block_files extends block_base {
     /**
      * Retrieve user's pinned file items from the database.
      *
-     * @param $userid id of the user
+     * @param $userid int id of the user
      * @return array pinned file items
      */
     private function get_pinned_file_items($userid) {
@@ -245,11 +250,10 @@ class block_files extends block_base {
     /**
      * Retrieve all file items, i.e. files and folders, or one specified file item from course.
      *
-     * @param $fs filesystem
+     * @param $fs file_storage filesystem
      * @param $course the course
-     * @param null $cmid course module id to extract file item from (only one)
+     * @param null $cmid int course module id to extract file item from (only one)
      * @return array retrieved file items
-     * @throws moodle_exception
      */
     private function get_file_items($fs, $course, $cmid = null) {
         $coursename = $course->fullname;
@@ -303,8 +307,8 @@ class block_files extends block_base {
     /**
      * Create a file item.
      *
-     * @param $coursename name of the course this file item belongs to
-     * @param $courseshortname short name of the course this file item belongs to
+     * @param $coursename string name of the course this file item belongs to
+     * @param $courseshortname string short name of the course this file item belongs to
      * @param $courseurl url of the course this file item belongs to
      * @param $cm course module this file item belongs to
      * @param $cmfile the actual file
@@ -326,7 +330,7 @@ class block_files extends block_base {
     /**
      * Create a block_files table with given name.
      *
-     * @param $tablename name of the table
+     * @param $tablename string name of the table
      * @return html_table block_files table
      */
     private function create_table($tablename) {
@@ -345,7 +349,6 @@ class block_files extends block_base {
      *
      * @param array $pinneditems pinned file items
      * @return string html table ready for presentation
-     * @throws coding_exception
      */
     private function create_content_pinned(array $pinneditems) {
         $table = $this->create_table(get_string('pinned_files', 'block_files'));
@@ -362,9 +365,8 @@ class block_files extends block_base {
      * Create block_files table containing recent file items.
      *
      * @param array $fileitems recent file items
-     * @param $showcount number of visible file items
+     * @param $showcount int number of visible file items
      * @return string html table ready for presentation
-     * @throws coding_exception
      */
     private function create_content_recent(array $fileitems, $showcount) {
         $table = $this->create_table(get_string('recent_files', 'block_files'));
@@ -385,9 +387,8 @@ class block_files extends block_base {
     /**
      * Create block_files footer. It either contains a link to view surplus items (if any) or nothing.
      *
-     * @param $surplusitemscount number of surplus recent file items
+     * @param $surplusitemscount int number of surplus recent file items
      * @return string empty string or footer with link
-     * @throws coding_exception
      */
     private function create_content_footer($surplusitemscount) {
         if ($surplusitemscount <= 0) {
@@ -395,14 +396,11 @@ class block_files extends block_base {
         }
 
         $morebtnstring = sprintf(get_string('show_more', 'block_files'), $surplusitemscount);
-        $morebtnjs = $this::MORE_BTN_JS;
         $morebtnlink = new moodle_url('/blocks/files/viewall.php');
-        $morebtn = html_writer::link($morebtnlink, $morebtnstring, array('id' => 'block-files-show-more-button', 'onclick' => $morebtnjs ));
-
-        $lessbtnjs = $this::LESS_BTN_JS;
-        $lessbtn = html_writer::link('#', get_string('show_less', 'block_files'), array( 'class' => 'block-files-item-hidden', 'onclick' => $lessbtnjs ));
-
+        $morebtn = html_writer::link($morebtnlink, $morebtnstring, array('id' => 'block-files-show-more-button', 'onclick' => block_files::MORE_BTN_JS ));
+        $lessbtn = html_writer::link('#', get_string('show_less', 'block_files'), array( 'class' => 'block-files-item-hidden', 'onclick' => block_files::LESS_BTN_JS ));
         $footer = $morebtn . $lessbtn;
+        
         return $footer;
     }
 }

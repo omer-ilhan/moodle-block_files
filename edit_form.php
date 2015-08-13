@@ -21,6 +21,9 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class for configuring the block_files block.
+ */
 class block_files_edit_form extends block_edit_form {
 
     protected function specific_definition($mform) {
