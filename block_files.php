@@ -87,7 +87,7 @@ class block_files extends block_base {
 
         // Get all courses the user is enrolled in, filter out old ones.
         $enrolledcourses = array_filter(
-            enrol_get_my_courses(array('id', 'fullname', 'shortname', 'startdate'), 'startdate DESC, sortorder ASC'),   array(&$this, 'is_current'));
+            enrol_get_my_courses(array('id', 'fullname', 'shortname', 'startdate', 'format'), 'startdate DESC, sortorder ASC'),   array(&$this, 'is_current'));
 
         // Get information about all relevant file items in all courses, e.g. files and folders.
         $pinneditems = $this->get_pinned_file_items($userid);
