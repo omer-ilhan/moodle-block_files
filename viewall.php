@@ -35,7 +35,14 @@ $lastmodifiedon = get_string('last_modified_on', 'block_files');
 $blocktitle = get_string('files', 'block_files');
 $pagetitle = get_string('all_files', 'block_files');
 
+// Prepare the files block.
+$filesblock = new block_files();
+$filesblock->page = $PAGE;
+$filesblock->block_files_set_viewall_mode();
+
+// Prepare the page.
 $url = new moodle_url('/blocks/files/viewall.php');
+$PAGE->set_context($filesblock->context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('standard');
 $PAGE->set_heading($blocktitle);
@@ -45,12 +52,7 @@ $settingsnode = $PAGE->settingsnav->add($blocktitle);
 $editnode = $settingsnode->add($pagetitle, $url);
 $editnode->make_active();
 
-// Print the page.
-$filesblock = new block_files();
-$filesblock->page = $PAGE;
-$filesblock->block_files_set_viewall_mode();
-
-
+// Print it.
 echo $OUTPUT->header();
 echo $OUTPUT->heading($pagetitle);
 echo $OUTPUT->box_start();
