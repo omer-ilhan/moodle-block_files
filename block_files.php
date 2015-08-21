@@ -239,10 +239,15 @@ class block_files extends block_base {
         foreach ($pinneditemids as $pinneditemid) {
             $cmid = $pinneditemid->cmid;
             $cminfo = $DB->get_record('course_modules', array('id' => $cmid), 'course');
-            $courseid = $cminfo->course;
-            $course = get_course($courseid);
-            $newpinneditem = $this->get_file_items($fs, $course, $cmid);
-            $pinneditems = array_merge($pinneditems, $newpinneditem);
+
+            if ($cminfo) {
+                $courseid = $cminfo->course;
+                $course = get_course($courseid);
+                $newpinneditem = $this->get_file_items($fs, $course, $cmid);
+                $pinneditems = array_merge($pinneditems, $newpinneditem);
+            } else {
+                $this->unpin_item($userid, $cmid);
+            }
         }
         return $pinneditems;
     }
@@ -400,7 +405,7 @@ class block_files extends block_base {
         $morebtn = html_writer::link($morebtnlink, $morebtnstring, array('id' => 'block-files-show-more-button', 'onclick' => block_files::MORE_BTN_JS ));
         $lessbtn = html_writer::link('#', get_string('show_less', 'block_files'), array( 'class' => 'block-files-item-hidden', 'onclick' => block_files::LESS_BTN_JS ));
         $footer = $morebtn . $lessbtn;
-        
+
         return $footer;
     }
 }
