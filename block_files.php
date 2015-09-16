@@ -49,7 +49,7 @@ class block_files extends block_base {
     /**
      * @var int how many elements to display outright according to configuration
      */
-    private $elementstodisplay;
+    private $elementstodisplay = 5;
 
     /**
      * @var bool value determining whether to show all files or not, used on the viewall page.
@@ -65,8 +65,6 @@ class block_files extends block_base {
         if (isset($this->config)) {
             if (isset($this->config->elements_to_display) && !empty($this->config->elements_to_display)) {
                 $this->elementstodisplay = $this->config->elements_to_display;
-            } else {
-                $this->elementstodisplay = 5;
             }
         }
 
