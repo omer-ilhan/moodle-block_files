@@ -22,8 +22,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2015082100;
+$plugin->version   = 2015091600;
 $plugin->requires  = 2014111005; // 2014111005 is Moodle 2.8.5.
 $plugin->component = 'block_files';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.1';
+$plugin->release   = '1.2';
