@@ -127,7 +127,6 @@ class block_files extends block_base {
 
         $this->content->text .= $this->create_content_recent($fileitems, $elementstodisplay);
         $this->content->text .= $this->create_content_pinned($pinneditems);
-        $this->content->footer = $this->create_content_footer(count($fileitems) - $elementstodisplay);
 
         // Necessary to render both tables side-by-side.
         $this->content->text = html_writer::div($this->content->text, 'row-fluid');
@@ -365,7 +364,7 @@ class block_files extends block_base {
         $th = new html_table_cell($tablename);
         $th->header = true;
         $th->colspan = 3;
-        $th->attributes = array('class' => 'label label-important block-files-th');
+        $th->attributes = array('class' => 'block-files-th');
         $table->head = array($th);
         return $table;
     }
@@ -398,12 +397,15 @@ class block_files extends block_base {
         $table = $this->create_table(get_string('recent_files', 'block_files'));
         $table->rowclasses = array();
         $itemsize = count($fileitems);
+
         for ($i = $showcount; $i < $itemsize; $i++) {
             $table->rowclasses[$i] = 'block-files-item-hidden';
         }
+
         if (empty($fileitems)) {
             $table->data[] = array(get_string('no_files', 'block_files'));
         } else {
+            $table->head[0]->text .= $this->create_more_less_button($itemsize - $showcount);
             $table->data = $this->create_table_items($fileitems);
         }
 
@@ -411,12 +413,10 @@ class block_files extends block_base {
     }
 
     /**
-     * Create block_files footer. It either contains a link to view surplus items (if any) or nothing.
-     *
      * @param $surplusitemscount int number of surplus recent file items
-     * @return string empty string or footer with link
+     * @return string empty string or show more/less buttons
      */
-    private function create_content_footer($surplusitemscount) {
+    private function create_more_less_button($surplusitemscount) {
         if ($surplusitemscount <= 0) {
             return '';
         }
@@ -424,9 +424,8 @@ class block_files extends block_base {
         $morebtnstring = sprintf(get_string('show_more', 'block_files'), $surplusitemscount);
         $morebtnlink = new moodle_url('/blocks/files/viewall.php');
         $morebtn = html_writer::link($morebtnlink, $morebtnstring, array('id' => 'block-files-show-more-button', 'onclick' => block_files::MORE_BTN_JS ));
-        $lessbtn = html_writer::link('#', get_string('show_less', 'block_files'), array( 'class' => 'block-files-item-hidden', 'onclick' => block_files::LESS_BTN_JS ));
-        $footer = $morebtn . $lessbtn;
-
-        return $footer;
+        $lessbtn = html_writer::link('#', get_string('show_less', 'block_files'), array( 'id' => 'block-files-show-less-button', 'class' => 'block-files-item-hidden', 'onclick' => block_files::LESS_BTN_JS ));
+        return ($morebtn . $lessbtn);
     }
+
 }

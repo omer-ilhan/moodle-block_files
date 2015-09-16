@@ -1,6 +1,5 @@
 .block-files-th {
-    display: table-cell !important;
-    font-size: inherit !important;
+
 }
 
 .block-files-item-hidden {
@@ -9,6 +8,16 @@
 
 .block-files-table {
 
+}
+
+#block-files-show-more-button {
+    display: inline;
+    float: right;
+}
+
+#block-files-show-less-button {
+    display:none;
+    float: right;
 }
 
 #block-region-side-pre .block-files-table {
