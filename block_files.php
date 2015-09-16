@@ -31,11 +31,6 @@ defined('MOODLE_INTERNAL') || die();
 class block_files extends block_base {
 
     /**
-     * This is the default amount of elements to display, used when nothing else is configured or not on viewall page.
-     */
-    const DEFAULT_ELEMENTS_TO_DISPLAY = 5;
-
-    /**
      * This little javascript snippet is used to override the fallback link to the viewall page and display
      * the surplus (if count(items) > elements_to_display) items on the same page instead.
      */
@@ -47,6 +42,16 @@ class block_files extends block_base {
     const LESS_BTN_JS = 'this.style.display="none";var elements=document.querySelectorAll(".block-files-item-hidden");var length=elements.length;for(var i=0;i<length;i++){elements[i].style.display="none"}var morebtn=document.getElementById("block-files-show-more-button");if(morebtn.style.display=="none"){morebtn.style.display=""}return false;';
 
     /**
+     * @var int determines the amount of months regarded as current
+     */
+    private $currentmonths;
+
+    /**
+     * @var int how many elements to display outright according to configuration
+     */
+    private $elementstodisplay;
+
+    /**
      * @var bool value determining whether to show all files or not, used on the viewall page.
      */
     private $viewall;
@@ -54,6 +59,22 @@ class block_files extends block_base {
     public function init() {
         $this->title = get_string('files', 'block_files');
         $this->viewall = false;
+    }
+
+    public function specialization() {
+        if (isset($this->config)) {
+            if (isset($this->config->elements_to_display) && !empty($this->config->elements_to_display)) {
+                $this->elementstodisplay = $this->config->elements_to_display;
+            } else {
+                $this->elementstodisplay = 5;
+            }
+        }
+
+        $this->currentmonths = get_config('block_files', 'current_months');
+    }
+
+    public function has_config() {
+        return true;
     }
 
     /**
@@ -64,11 +85,11 @@ class block_files extends block_base {
     }
 
     public function get_content() {
-        global $CFG, $USER;
         if ($this->content !== null) {
             return $this->content;
         }
 
+        global $CFG, $USER;
         // Required to use course_get_url() reliably.
         require_once($CFG->dirroot . '/course/lib.php');
 
@@ -77,31 +98,31 @@ class block_files extends block_base {
         if ($userid == 0) {
             return $this->content;
         }
-
         $this->content->text = '';
 
+        // handle pinning and unpinning of items
         $itemtoremove = optional_param('remove_pinned_item', -1, PARAM_INT);
         $itemtoadd = optional_param('add_pinned_item', -1, PARAM_INT);
         $this->unpin_item($userid, $itemtoremove);
         $this->pin_item($userid, $itemtoadd);
 
-        // Get all courses the user is enrolled in, filter out old ones.
+        // Retrieve all courses the user is enrolled in, filter out old ones.
         $enrolledcourses = array_filter(
-            enrol_get_my_courses(array('id', 'fullname', 'shortname', 'startdate', 'format'), 'startdate DESC, sortorder ASC'),   array(&$this, 'is_current'));
+            enrol_get_my_courses(array('id', 'fullname', 'shortname', 'startdate', 'format'), 'startdate DESC, sortorder ASC'),
+            array(&$this, 'is_current'));
 
-        // Get information about all relevant file items in all courses, e.g. files and folders.
-        $pinneditems = $this->get_pinned_file_items($userid);
+        // Retrieve information about all relevant file items, i.e. files and folders, in all courses.
         $fileitems = $this->get_recent_file_items($enrolledcourses, array(&$this, 'compare_time_modified'));
+        $fileitemscount = count($fileitems);
 
-        $elementstodisplay = self::DEFAULT_ELEMENTS_TO_DISPLAY;
+        // Retrieve pinned items of current user
+        $pinneditems = $this->get_pinned_file_items($userid);
+        $pinneditemscount = count($pinneditems);
 
-        if (!$this->viewall) {
-            if (isset($this->config->elements_to_display)) {
-                $elementstodisplay = $this->config->elements_to_display;
-            }
-            $elementstodisplay = (count($pinneditems) > $elementstodisplay) ? count($pinneditems) : $elementstodisplay;
+        if ($this->viewall) {
+            $elementstodisplay = ($fileitemscount > $pinneditemscount) ? $fileitemscount : $pinneditemscount;
         } else {
-            $elementstodisplay = count($fileitems);
+            $elementstodisplay = ($this->elementstodisplay < $pinneditemscount) ? $pinneditemscount : $this->elementstodisplay;
         }
 
         $this->content->text .= $this->create_content_recent($fileitems, $elementstodisplay);
@@ -110,7 +131,6 @@ class block_files extends block_base {
 
         // Necessary to render both tables side-by-side.
         $this->content->text = html_writer::div($this->content->text, 'row-fluid');
-
         return $this->content;
     }
 
@@ -169,7 +189,7 @@ class block_files extends block_base {
      * @return bool true if the course started within 7 months from today, false otherwise
      */
     private function is_current($course) {
-        $mincurrenttime = strtotime('first day of -7 month');
+        $mincurrenttime = strtotime('first day of -'.$this->currentmonths.' month');
         return $course->startdate >= $mincurrenttime;
     }
 
@@ -272,14 +292,15 @@ class block_files extends block_base {
                 continue;
             }
             $cmtype = $cm->modname;
+            // if resource is a folder
             if ($cmtype === 'folder') {
-                // use the most recently modified file..
+                // ...use the most recently modified file
                 $cmfiles = $fs->get_area_files($cm->context->id, 'mod_folder', 'content', false, 'timemodified', false);
                 $cmfile = array_pop($cmfiles);
                 if (isset($cmfile)) {
                     $fileitems[] = $this->create_file_item($coursename, $courseshortname, $courseurl, $cm, $cmfile);
                 }
-            } else if ($cmtype === 'resource') { // check if resource === file.
+            } else if ($cmtype === 'resource') { // if resource is a file.
                 $cmfiles = $fs->get_area_files($cm->context->id, 'mod_resource', 'content', false, 'timemodified', false);
                 foreach ($cmfiles as $cmfile) {
                     $fileitems[] = $this->create_file_item($coursename, $courseshortname, $courseurl, $cm, $cmfile);

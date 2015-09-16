@@ -38,3 +38,7 @@ $string['show_more'] = 'Show %d more';
 $string['show_less'] = 'Show less';
 $string['pin_item'] = 'Pin item';
 $string['unpin_item'] = 'Unpin item';
+$string['headerconfig'] = 'Recent Files Block Configuration';
+$string['descconfig'] = 'Set global configuration for recent files block.';
+$string['labelcurrentmonths'] = 'Current Months';
+$string['desccurrentmonths'] = 'The amount of months the startdate of a course may be in the past to still be regarded as current.';

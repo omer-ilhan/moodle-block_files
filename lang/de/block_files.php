@@ -38,3 +38,7 @@ $string['show_more'] = 'Zeige %d mehr';
 $string['show_less'] = 'Zeige weniger';
 $string['pin_item'] = 'Datei pinnen';
 $string['unpin_item'] = 'Datei losheften';
+$string['headerconfig'] = 'Aktuelle Dateien Block Konfiguration';
+$string['descconfig'] = 'Globale Einstellungen für den Aktuelle Dateien Block.';
+$string['labelcurrentmonths'] = 'Aktuelle Monate';
+$string['desccurrentmonths'] = 'Die Anzahl an Monaten die das Startdatum eines Kurses in der Vergangenheit liegen darf um noch als aktuell zu gelten.';
